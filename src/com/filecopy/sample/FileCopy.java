@@ -22,7 +22,7 @@ public class FileCopy {
 	static boolean filesCopied=false;
 	static List<String> failedFileNames=new ArrayList<String>();
 	static List<String> replacedFiles=new ArrayList<String>();
-	 public static void main(String... args) {
+	 public static void main(String... args) throws InterruptedException {
 			System.out.println();
 		 System.out.println("*** This Application copy files from source to destination folder."
 		 		+ " If same files exists in source and destination and destination file older than "
@@ -48,8 +48,8 @@ public class FileCopy {
 					copyOrReplaceFileToFolder(folderB,entryObj.getValue());
 					replacedFiles.add(existingFleObj.getName());
 					}catch (Exception e) {
-						failedFileNames.add(existingFleObj.getAbsolutePath());
-						failedFileNames.add("Unable to replace above file because it is being used by another process.");
+						failedFileNames.add(existingFleObj.getName());
+						failedFileNames.add("Unable to replace above file because it is being used by another process in destination folder.");
 						
 					}
 				}
@@ -58,17 +58,23 @@ public class FileCopy {
 				copyOrReplaceFileToFolder(folderB,entryObj.getValue());
 			}
 		});
+		System.out.println();
+		System.out.println();
 	 if( ! failedFileNames.isEmpty()) {
 		 System.out.println("Following files are failed to copy to destination folder. Please run this app again or manualy copy them");
 		System.out.println();
 		 failedFileNames.forEach(fileName->System.out.println(fileName));
 	 }
 	 else if(filesCopied) { 
-			System.out.println("All Files were copied. If you find any files are failed to copy please try to run this program again");
+			System.out.println("All Files were copied.");
 	}else {
 			System.out.println("Everything upto date. No files to copy");
 	}
 		input.close();
+		System.out.println();
+		System.out.println("*** Completed ***");
+		
+		Thread.sleep(Long.MAX_VALUE);
 		
 	 }
 	 
@@ -79,10 +85,13 @@ public class FileCopy {
 		Path target= Paths.get(targetFile);
         Path source= Paths.get(existingFile);
 		 try {
+			 ConsoleHelper.animate();
 			Files.copy(source, target);
+			ConsoleHelper.kill("Copied Successfully...");
 		} catch (IOException e) {
-			failedFileNames.add(existingFile);
-			System.out.println("Failed to copy the file please try again"+ existingFile);
+			failedFileNames.add(existingFleObj.getName());
+			ConsoleHelper.kill("Failed to copy...");
+			//System.out.println("Failed to copy the file please try again"+ existingFile);
 			e.printStackTrace();
 		}
 	}
